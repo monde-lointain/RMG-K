@@ -539,3 +539,85 @@ for (row = 0; row < rows; row++)
     for (col = 0; col < cols; col++)
         sum += matrix[row][col];
 ```
+
+# Contributing
+
+## Git Commit Messages
+
+Write for the future reader re-establishing context (often yourself, months later).
+
+**One logical change per commit.** Adding a feature, fixing one bug, etc. Can't summarize it in a few words? Too big — split it. Use `git add -p`/`-i` to split. Err toward too many commits, not too few.
+
+**Format:**
+- Summary line ≤50 chars, present tense ("Add", "Fix" — not "Added"/"Fixes").
+- Blank line, then body paragraphs (omit body only for trivial obvious changes).
+- Body describes intent and approach, not the code. Answer:
+  - **Why** is it necessary? (bug / feature / perf / correctness)
+  - **How** does it address it? (high-level approach)
+  - **What** are the effects? (side effects, benchmarks, caveats)
+- Rule of thumb: from the message alone, another dev could reproduce the patch.
+
+**Don't:**
+- End-of-day "backup" commits (random cross-code diffs).
+- Per-file commits when one logical change spans files.
+- Vague messages ("misc fixes and cleanups").
+- Two unrelated changes in one commit ("fix bug + rename foo to bar").
+- Whitespace/reindent changes mixed with code changes — separate commits.
+
+## Pull Requests
+
+### Core principle
+
+A PR steals time from your reviewer. The reviewer's mental cache is cold — they weren't there when the code was written. Your job as author is to hand them something small, well-framed, and easy to digest so the review costs them as little as possible.
+
+### 1. Explain the *why*
+
+- The diff shows *what* changed, not *why*. Spell out the reasoning the diff can't convey (e.g. "why did 16 become 17?").
+- If the reason is subtle, consider whether the *code* should be changed to make it self-evident — PR descriptions are not tracked alongside the code as well as commits are.
+- Link to related bugs/issues. Use `closes #N` so merging auto-closes the issue.
+
+### 2. Keep it small and focused
+
+- Make the **smallest useful change**. Smaller PRs respect the reviewer's time ("only 5 minutes of your time, thanks").
+- Big PRs get one of two bad outcomes: a rubber-stamp "LGTM" with no real review (past ~500 lines, honest reviewers admit they can't truly understand it), or "have you considered a completely different approach?" after you've sunk hours in.
+- A PR is an *option* that could be thrown away. The bigger it is, the more it hurts when it's rejected — and the more likely people are to have strong opinions about its impact.
+
+### 3. Get buy-in before large or risky work
+
+- For anything substantial, agree the general approach with the reviewer *before* crafting a beautiful, large, throw-away-able change.
+- A small PR also lets the reviewer say "this won't work" without feeling guilty about the time you spent.
+
+### 4. Handle unavoidably large changes well
+
+- Some changes can't be minimal (e.g. renaming a class across a thousand files). Make these **mechanical and single-purpose** so each line reads the same — and note "I did this with a refactoring tool."
+- Don't mix a mechanical rename with new behavior in the same PR. Rename in one PR, add responsibilities in the next.
+- Break big work into a chain of **stacked/cascading PRs**, each built on the last — but only when you're confident the head of the chain won't significantly change.
+
+### 5. Self-review before you submit
+
+- Diff your whole change before opening it. Reading it back catches leftover debug code, missed renames, missing tests, and things that should be split into two PRs.
+- Pushing to GitHub and reviewing in its UI (rather than your editor) helps flip your brain into reviewer mindset — you can't edit, it doesn't look like your editor, so you read it impartially.
+- A final "self review" commit is normal and worthwhile.
+
+### 6. Make CI green
+
+- Run the full test suite on the PR. Tests are what actually save you most of the time.
+- Tests should be present and pass; lean on tooling (coverage gates, linters) to catch "0% of new code is tested" so it isn't on the reviewer to police.
+
+### 7. Curate the history
+
+- Squash intermediate commits to present a clean, readable artifact with good names — kind to the reader and easier to revert cleanly later.
+- Exception: for open-source/expository work, leaving the messy history can be a deliberate choice to show *how* you got there (the process behind the sausage). Decide intentionally.
+- Make reverting easy — a clean, atomic change lets someone safely roll it back at 4am and let you fix it the next day.
+
+### 8. Manage reviewers explicitly
+
+- Prefer **one** named reviewer who is on the hook. With multiple reviewers, the chance any one responds drops sharply — everyone assumes someone else has it, and two people can end up half-reviewing the same change.
+- If others merely need awareness, **CC** them separately in the comments rather than making them reviewers.
+- If a change genuinely needs two sign-offs, send it to both and make it explicit that you want both.
+- Choose your reviewer to fit the need: a thorough atom-by-atom reviewer when you want the bugs found; a lighter touch when appropriate.
+
+### 9. Own the merge and the deploy
+
+- The **original author** should merge, unless they explicitly delegate it. This lets you orchestrate the order of interrelated branches you tangled up.
+- Under continuous deployment, merging ships to prod — so the person shepherding the change should be there to watch the deploy and tail the logs. Adding a PR review shouldn't transfer deployment ownership.
